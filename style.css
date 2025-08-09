@@ -1,3 +1,10 @@
+.playfair-display-<uniquifier> {
+    font-family: "Playfair Display", serif;
+    font-optical-sizing: auto;
+    font-weight: <weight>;
+    font-style: italic;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -21,7 +28,10 @@ body, html {
     left: 50%;
     transform: translateX(-50%); /* Keep it centered horizontally */
     color: white;
-    font-family: 'Garamond', serif;
+    font-family: "Playfair Display", serif;
+    font-optical-sizing: auto;
+    font-weight: <weight>;
+    font-style: italic;
     text-align: center;
     background-color: rgba(0, 0, 0, 0.5);
     padding: 20px;
@@ -42,18 +52,75 @@ body, html {
     justify-content: center;
     align-items: center;
     z-index: 20; /* Asegura que esté por encima de todo */
+    opacity: 0;
+    animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.modal-overlay.closing {
+    animation: fadeOut 0.3s ease-in-out forwards;
 }
 
 .modal-content {
     background-color: #fff;
     padding: 30px;
     border-radius: 10px;
-    max-width: 500px;
+    max-width: 700px; /* Aumentado para acomodar el layout horizontal */
     width: 90%;
-    text-align: center;
     position: relative;
-    font-family: 'Garamond', serif;
+    font-family: "Playfair Display", serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: italic;
     color: #333;
+    display: flex; /* Cambio principal: usar flexbox */
+    align-items: center; /* Centra verticalmente el contenido */
+    gap: 30px; /* Espacio entre imagen y texto */
+    transform: scale(0.7);
+    animation: modalSlideIn 0.3s ease-in-out forwards;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideOut {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+}
+
+.modal-content.closing {
+    animation: modalSlideOut 0.3s ease-in-out forwards;
 }
 
 .modal-close-button {
@@ -70,12 +137,53 @@ body, html {
     color: #000;
 }
 
+.modal-image-container {
+    flex-shrink: 0; /* Evita que la imagen se comprima */
+    width: 250px; /* Ancho fijo para la imagen */
+}
+
 #modal-img {
-    max-width: 100%;
+    width: 100%;
     height: 250px;
     object-fit: contain;
-    margin-bottom: 20px;
     border-radius: 5px;
+}
+
+.modal-text-container {
+    flex: 1; /* Toma el espacio restante */
+    text-align: center; /* Alinea el texto a la izquierda */
+}
+
+.modal-text-container h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #B8860B; /* Color dorado oscuro para legibilidad */
+    font-size: 1.8em;
+    line-height: 1.2;
+}
+
+.modal-text-container p {
+    margin-bottom: 0;
+    color: #8B7355; /* Color dorado más suave para el texto descriptivo */
+    font-size: 1.2em;
+    line-height: 1.4;
+}
+
+/* Responsive: volver al layout vertical en pantallas pequeñas */
+@media (max-width: 768px) {
+    .modal-content {
+        flex-direction: column;
+        text-align: center;
+        max-width: 500px;
+    }
+    
+    .modal-image-container {
+        width: 100%;
+    }
+    
+    .modal-text-container {
+        text-align: center;
+    }
 }
 
 /* ===== ESTILOS PARA LOS BOTONES DE INFO 2D (MÁS PEQUEÑOS) ===== */

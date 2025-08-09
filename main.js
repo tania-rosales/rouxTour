@@ -22,19 +22,84 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true;
 
+
+// =================================================
+// ===== FUNCIÓN PARA CREAR PLACEHOLDER DE IMAGEN =====
+// =================================================
+function createPlaceholderImage(width = 400, height = 300, text = 'Imagen no disponible') {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    
+    // Fondo
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(0, 0, width, height);
+    
+    // Borde
+    ctx.strokeStyle = '#ddd';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, width, height);
+    
+    // Texto
+    ctx.fillStyle = '#999';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, width / 2, height / 2);
+    
+    return canvas.toDataURL();
+}
+
 // =================================================
 // ===== DATOS DE LAS JOYAS (Sin cambios) =====
 // =================================================
 const jewelryData = {
-    anillo1: { title: 'Anillo de Compromiso "Eternidad"', description: 'Un clásico solitario de oro con un diamante de corte brillante, perfecto para sellar una promesa de amor eterno.', image: 'anillo1_foto.jpg' },
-    anillo2: { title: 'Anillo de Oro "Trenzado"', description: 'Elegante y moderno, este anillo de oro presenta un diseño trenzado que simboliza la unión de dos vidas.', image: 'anillo2_foto.jpg' },
-    anillo3: { title: 'Sortija "Princesa"', description: 'Deslumbrante sortija con un diamante central de corte princesa, rodeado de incrustaciones que realzan su brillo.', image: 'anillo3_foto.jpg' },
-    arete1: { title: 'Aretes "Perla del Mar"', description: 'Finos aretes de plata con perlas naturales cultivadas, un toque de elegancia y sofisticación para cualquier ocasión.', image: 'arete1_foto.jpg' },
-    arete2: { title: 'Pendientes "Gota de Luz"', description: 'Delicados pendientes en forma de gota, con un pavé de diamantes que captura y refleja la luz maravillosamente.', image: 'arete2_foto.jpg' },
-    arete5: { title: 'Aretes "Botón de Oro"', description: 'Sencillos y elegantes, estos aretes de botón en oro son el accesorio perfecto para el día a día.', image: 'arete5_foto.jpg' },
-    collar1: { title: 'Collar "Corazón Real"', description: 'Un majestuoso collar con un dije en forma de corazón, adornado con un rubí central y una orla de diamantes.', image: 'collar1_foto.jpg' },
-    collar2: { title: 'Gargantilla "Río de Plata"', description: 'Moderna y minimalista, esta gargantilla de plata sólida se ajusta elegantemente al cuello, destacando por su brillo y simplicidad.', image: 'collar2_foto.jpg' },
-    collar3: { title: 'Collar de Perlas "Clásico"', description: 'Un indispensable en cualquier joyero. Collar de perlas perfectamente esféricas con un broche de seguridad en oro.', image: 'collar3_foto.jpg' },
+    anillo1: { 
+        title: 'Anillo de Compromiso "Amor Puro"', 
+        description: 'Anillo de compromiso de 0.97 quilates de oro con un diamante incrustado al centro', 
+        image: './webp/anillo1.webp'
+    },
+    anillo2: { 
+        title: 'Anillo de Oro "Infinity Gold"', 
+        description: 'Anillo de oro con detalles minimalistas y relieves en la parte inferior y superior', 
+        image: './webp/anillo2.webp'
+    },
+    anillo3: { 
+        title: 'Anillo de oro "Fénix"', 
+        description: 'Anillo de oro presenta un diseño de alas que se extiende de ambos lados y al centro del anillo un diamante incrustado, generando un estilo elegante y simbólico.  Representa libertad y protección.', 
+        image: './webp/anillo3.webp'
+    },
+    arete1: { 
+        title: 'Aretes "Aura"', 
+        description: 'Par de argollas de oro con detalles en forma de diamante, adaptables a todo tipo de oreja.', 
+        image: './webp/arete1.webp'
+    },
+    arete2: { 
+        title: 'Pendientes "Cupido"', 
+        description: 'Aretes de oro, con esclavas, perfectos para regalos de boda o de graduación.', 
+        image: './webp/arete2.webp'
+    },
+    arete5: { 
+        title: 'Aretes "Corazón dorado"', 
+        description: 'Argollas de oro, con detalles de perlas doradas alrededor.', 
+        image: './webp/arete5.webp'
+    },
+    collar1: { 
+        title: 'Collar "Vértice de Luz"', 
+        description: 'Precioso collar de oro amarillo con un rombo plateado.', 
+        image: './webp/collar1.webp'
+    },
+    collar2: { 
+        title: 'Gargantilla "Río de Plata"', 
+        description: 'Moderna y minimalista, esta gargantilla de plata sólida se ajusta elegantemente al cuello, destacando por su brillo y simplicidad.', 
+        image: './webp/collar2.webp'
+    },
+    collar3: { 
+        title: 'Collar de oro "Persia Infinita"', 
+        description: 'Lleva la riqueza persa en ti, gargantilla estilo persa, con acabados minimalistas.', 
+        image: './webp/collar3.webp'
+    },
 };
 
 // =================================================
@@ -135,15 +200,42 @@ loadModel('collar2.glb', 'collar2', new THREE.Vector3(0.8, 1.25, 0), 0.05);
 loadModel('collar3.glb', 'collar3', new THREE.Vector3(-0.8, 1.75, 0), 0.009);
 
 // =================================================
-// ===== LÓGICA DE INTERACCIÓN CON BOTONES 2D =====
+// ===== LÓGICA DE INTERACCIÓN CON BOTONES 2D (ACTUALIZADA) =====
 // =================================================
 function openJewelModal(data) {
+    const modal = document.getElementById('jewel-modal');
+    const modalContent = modal.querySelector('.modal-content');
+    
+    // Configurar contenido
     document.getElementById('modal-title').innerText = data.title;
     document.getElementById('modal-description').innerText = data.description;
     document.getElementById('modal-img').src = data.image;
-    document.getElementById('jewel-modal').style.display = 'flex';
+    
+    // Remover clases de cierre si existen
+    modal.classList.remove('closing');
+    modalContent.classList.remove('closing');
+    
+    // Mostrar modal
+    modal.style.display = 'flex';
 }
 
+function closeJewelModal() {
+    const modal = document.getElementById('jewel-modal');
+    const modalContent = modal.querySelector('.modal-content');
+    
+    // Añadir clases de animación de cierre
+    modal.classList.add('closing');
+    modalContent.classList.add('closing');
+    
+    // Después de la animación, ocultar la modal
+    setTimeout(() => {
+        modal.style.display = 'none';
+        modal.classList.remove('closing');
+        modalContent.classList.remove('closing');
+    }, 300); // 300ms coincide con la duración de la animación CSS
+}
+
+// Crear botones (sin cambios)
 for (const key in jewelryData) {
     const data = jewelryData[key];
     const button = document.createElement('div');
@@ -153,6 +245,28 @@ for (const key in jewelryData) {
     buttonsContainer.appendChild(button);
     button.addEventListener('click', () => { openJewelModal(data); });
 }
+
+// Event listeners actualizados para usar la nueva función de cierre
+const modal = document.getElementById('jewel-modal');
+const closeButton = document.querySelector('.modal-close-button');
+
+closeButton.addEventListener('click', closeJewelModal);
+
+modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+        closeJewelModal();
+    }
+});
+
+// También cerrar con la tecla ESC (opcional)
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        const modal = document.getElementById('jewel-modal');
+        if (modal.style.display === 'flex') {
+            closeJewelModal();
+        }
+    }
+});
 
 function updateInfoButtons() {
     if (controls.isLocked) return;
@@ -171,12 +285,6 @@ function updateInfoButtons() {
     }
 }
 
-const modal = document.getElementById('jewel-modal');
-const closeButton = document.querySelector('.modal-close-button');
-closeButton.addEventListener('click', () => { modal.style.display = 'none'; });
-modal.addEventListener('click', (event) => {
-    if (event.target === modal) { modal.style.display = 'none'; }
-});
 // =================================================
 // ===== ILUMINACIÓN Y BUCLE DE ANIMACIÓN (Sin cambios) =====
 // =================================================
