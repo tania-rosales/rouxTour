@@ -305,11 +305,133 @@ function animate() {
     updateMovement(delta);
     updateInfoButtons();
     renderer.render(scene, camera);
+    adjustVolumeByDistance();
 }
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// =================================================
+// ===== CONFIGURACIÓN DE AUDIO AMBIENTE =====
+// =================================================
+let ambientAudio = null;
+
+function initAmbientAudio() {
+    ambientAudio = new Audio('./audio/ambient.mp3'); // Cambia por tu archivo de audio
+    ambientAudio.loop = true; // Reproducir en bucle
+    ambientAudio.volume = 0.3; // Volumen suave (30%)
+    
+    // Configurar para que no ralentice la carga
+    ambientAudio.preload = 'metadata'; // Solo carga metadatos inicialmente
+    
+    // Intentar reproducir cuando el usuario interactúe por primera vez
+    const startAudio = () => {
+        if (ambientAudio && ambientAudio.paused) {
+            ambientAudio.play().catch(e => {
+                console.log('Audio bloqueado por el navegador, se reproducirá al interactuar');
+            });
+        }
+    };
+
+    // Eventos para iniciar audio (compatibilidad con políticas del navegador)
+    document.addEventListener('click', startAudio, { once: true });
+    document.addEventListener('keydown', startAudio, { once: true });
+    
+    // También intentar cuando se active el pointer lock
+    controls.addEventListener('lock', startAudio);
+}
+
+// Función para controlar el audio
+function toggleAudio() {
+    if (ambientAudio) {
+        if (ambientAudio.paused) {
+            ambientAudio.play();
+        } else {
+            ambientAudio.pause();
+        }
+    }
+}
+
+// =================================================
+// ===== CREACIÓN DE LOGOS EN LAS PAREDES =====
+// =================================================
+function createWallLogos() {
+    const logoTexture = textureLoader.load('./logo_mod.webp'); // Cambia por la ruta de tu logo
+    
+    // Configurar textura del logo
+    logoTexture.minFilter = THREE.LinearFilter;
+    logoTexture.magFilter = THREE.LinearFilter;
+    
+    const logoMaterial = new THREE.MeshBasicMaterial({
+        map: logoTexture,
+        transparent: true,
+        alphaTest: 0.5, // Elimina píxeles transparentes
+    });
+
+    const logoGeometry = new THREE.PlaneGeometry(3, 3); // Tamaño del logo (3x3 metros)
+
+    // Posiciones y rotaciones para cada pared
+    const wallPositions = [
+        // Pared Norte (atrás)
+        { position: new THREE.Vector3(0, 3, -14.9), rotation: [0, 0, 0] },
+        
+        // Pared Sur (frente) 
+        { position: new THREE.Vector3(0, 3, 14.9), rotation: [0, Math.PI, 0] },
+        
+        // Pared Este (derecha)
+        { position: new THREE.Vector3(14.9, 3, 0), rotation: [0, -Math.PI/2, 0] },
+        
+        // Pared Oeste (izquierda)
+        { position: new THREE.Vector3(-14.9, 3, 0), rotation: [0, Math.PI/2, 0] }
+    ];
+
+    wallPositions.forEach((wall, index) => {
+        const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
+        logoMesh.position.copy(wall.position);
+        logoMesh.rotation.set(...wall.rotation);
+        logoMesh.name = `wallLogo${index}`;
+        scene.add(logoMesh);
+    });
+}
+
+// =================================================
+// ===== INICIALIZACIÓN (AGREGAR AL FINAL DEL CÓDIGO EXISTENTE) =====
+// =================================================
+
+// Llamar estas funciones después de crear la escena
+initAmbientAudio();
+createWallLogos();
+
+// Opcional: Agregar control de audio con tecla M
+document.addEventListener('keydown', (event) => {
+    const key = event.key.toLowerCase();
+    
+    // ... tu código existente de teclas ...
+    
+    // Agregar control de audio
+    if (key === 'm') {
+        toggleAudio();
+        console.log('Audio', ambientAudio?.paused ? 'pausado' : 'reproduciéndose');
+    }
+});
+
+// =================================================
+// ===== CONTROL DE VOLUMEN DINÁMICO (OPCIONAL) =====
+// =================================================
+function adjustVolumeByDistance() {
+    if (!ambientAudio || !controls.isLocked) return;
+    
+    // Calcular distancia desde el centro
+    const centerDistance = camera.position.distanceTo(new THREE.Vector3(0, 0, 0));
+    const maxDistance = 15; // Distancia máxima de la habitación
+    
+    // Ajustar volumen según distancia (más cerca del centro = más volumen)
+    const normalizedDistance = Math.min(centerDistance / maxDistance, 1);
+    const targetVolume = 0.3 * (1 - normalizedDistance * 0.5); // De 30% a 15%
+    
+    ambientAudio.volume = Math.max(0.1, targetVolume); // Mínimo 10%
+}
 
 animate();
