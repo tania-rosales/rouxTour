@@ -358,7 +358,7 @@ function toggleAudio() {
 // ===== CREACIÓN DE LOGOS EN LAS PAREDES =====
 // =================================================
 function createWallLogos() {
-    const logoTexture = textureLoader.load('./logo_mod.webp'); // Cambia por la ruta de tu logo
+    const logoTexture = textureLoader.load('./logo.jpg'); // Cambia por la ruta de tu logo
     
     // Configurar textura del logo
     logoTexture.minFilter = THREE.LinearFilter;
